@@ -58,13 +58,14 @@
   };
 
   ns.SimplePen.prototype.draw = function (color, col, row, frame, overlay) {
-    overlay.setPixel(col, row, color);
+    var coords = this.wrapCoords_(frame, col, row);
+    overlay.setPixel(coords.col, coords.row, color);
     if (color === Constants.TRANSPARENT_COLOR) {
-      frame.setPixel(col, row, color);
+      frame.setPixel(coords.col, coords.row, color);
     }
     this.pixels.push({
-      col: col,
-      row: row,
+      col: coords.col,
+      row: coords.row,
       color: color
     });
   };

@@ -106,7 +106,8 @@
 }
 
 .grid-width-select,
-.color-format-select {
+.color-format-select,
+.cycle-mode-select {
   margin: 5px 5px 0 5px;
 }
 

@@ -46,6 +46,7 @@
       this.getGridColor(),
       pskl.UserSettings.get("SEAMLESS_MODE"),
       pskl.UserSettings.get("SEAMLESS_OPACITY"),
+      pskl.UserSettings.get("CYCLE_MODE"),
       offset.x,
       offset.y,
       size.width,

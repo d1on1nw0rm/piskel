@@ -42,6 +42,32 @@
     return pskl.app.selectedColorsService.getPrimaryColor();
   };
 
+  ns.BaseTool.prototype.isCycleMode_ = function () {
+    return pskl.UserSettings.get("CYCLE_MODE") > 0;
+  };
+
+  ns.BaseTool.prototype.wrapCoords_ = function (frame, col, row) {
+    if (!this.isCycleMode_()) {
+      return { col: col, row: row };
+    }
+    return {
+      col: pskl.utils.Math.mod(col, frame.getWidth()),
+      row: pskl.utils.Math.mod(row, frame.getHeight())
+    };
+  };
+
+  ns.BaseTool.prototype.setWrappedPixel_ = function (
+    targetFrame,
+    col,
+    row,
+    color,
+    wrap
+  ) {
+    var x = wrap ? pskl.utils.Math.mod(col, targetFrame.getWidth()) : col;
+    var y = wrap ? pskl.utils.Math.mod(row, targetFrame.getHeight()) : row;
+    targetFrame.setPixel(x, y, color);
+  };
+
   ns.BaseTool.prototype.moveUnactiveToolAt = function (
     col,
     row,
@@ -49,8 +75,9 @@
     overlay,
     event
   ) {
-    if (overlay.containsPixel(col, row)) {
-      this.updateHighlightedPixel(frame, overlay, col, row);
+    var coords = this.wrapCoords_(frame, col, row);
+    if (overlay.containsPixel(coords.col, coords.row)) {
+      this.updateHighlightedPixel(frame, overlay, coords.col, coords.row);
     } else {
       this.hideHighlightedPixel(overlay);
     }

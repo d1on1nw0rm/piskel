@@ -36,7 +36,14 @@
 
     // Drawing the first point of the rectangle in the fake overlay canvas:
     var penSize = pskl.app.penSizeService.getPenSize();
-    this.draw(col, row, this.getToolColor(), overlay, penSize);
+    this.draw(
+      col,
+      row,
+      this.getToolColor(),
+      overlay,
+      penSize,
+      this.isCycleMode_()
+    );
   };
 
   ns.ShapeTool.prototype.moveToolAt = function (
@@ -57,7 +64,14 @@
 
     // draw in overlay
     var penSize = pskl.app.penSizeService.getPenSize();
-    this.draw(coords.col, coords.row, color, overlay, penSize);
+    this.draw(
+      coords.col,
+      coords.row,
+      color,
+      overlay,
+      penSize,
+      this.isCycleMode_()
+    );
   };
 
   /**
@@ -74,7 +88,8 @@
     var coords = this.getCoordinates_(col, row, event);
     var color = this.getToolColor();
     var penSize = pskl.app.penSizeService.getPenSize();
-    this.draw(coords.col, coords.row, color, frame, penSize);
+    var wrap = this.isCycleMode_();
+    this.draw(coords.col, coords.row, color, frame, penSize, wrap);
 
     $.publish(Events.DRAG_END);
     this.raiseSaveStateEvent({
@@ -83,7 +98,8 @@
       startCol: this.startCol,
       startRow: this.startRow,
       color: color,
-      penSize: penSize
+      penSize: penSize,
+      wrap: wrap
     });
   };
 
@@ -98,7 +114,8 @@
       replayData.row,
       replayData.color,
       frame,
-      replayData.penSize
+      replayData.penSize,
+      replayData.wrap
     );
   };
 

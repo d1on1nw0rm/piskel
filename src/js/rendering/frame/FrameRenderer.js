@@ -88,7 +88,7 @@
 
   ns.FrameRenderer.prototype.setZoom = function (zoom) {
     // Minimum zoom is one to ensure one sprite pixel occupies at least one pixel on screen.
-    var minimumZoom = 1;
+    var minimumZoom = this.getCycleRadius_() > 0 ? 0.1 : 1;
     // Maximum zoom is relative to the display dimensions to ensure at least 10 pixels can
     // be drawn on screen.
     var maximumZoom = Math.min(this.displayWidth, this.displayHeight) / 10;
@@ -141,10 +141,19 @@
   ns.FrameRenderer.prototype.setOffset = function (x, y) {
     var width = pskl.app.piskelController.getWidth();
     var height = pskl.app.piskelController.getHeight();
-    var maxX = width - this.displayWidth / this.zoom;
-    x = pskl.utils.Math.minmax(x, 0, maxX);
-    var maxY = height - this.displayHeight / this.zoom;
-    y = pskl.utils.Math.minmax(y, 0, maxY);
+    var cycleRadius = this.getCycleRadius_();
+    var minX = -cycleRadius * width;
+    var maxX = Math.max(
+      minX,
+      (1 + cycleRadius) * width - this.displayWidth / this.zoom
+    );
+    x = pskl.utils.Math.minmax(x, minX, maxX);
+    var minY = -cycleRadius * height;
+    var maxY = Math.max(
+      minY,
+      (1 + cycleRadius) * height - this.displayHeight / this.zoom
+    );
+    y = pskl.utils.Math.minmax(y, minY, maxY);
 
     this.offset.x = x;
     this.offset.y = y;
@@ -196,11 +205,17 @@
     return gridWidth;
   };
 
+  ns.FrameRenderer.prototype.getCycleRadius_ = function () {
+    var cycleMode = Number(pskl.UserSettings.get("CYCLE_MODE"));
+    return cycleMode === 3 || cycleMode === 5 ? (cycleMode - 1) / 2 : 0;
+  };
+
   ns.FrameRenderer.prototype.updateMargins_ = function (frame) {
-    var deltaX = this.displayWidth - this.zoom * frame.getWidth();
+    var cycleSize = 2 * this.getCycleRadius_() + 1;
+    var deltaX = this.displayWidth - this.zoom * frame.getWidth() * cycleSize;
     this.margin.x = Math.max(0, deltaX) / 2;
 
-    var deltaY = this.displayHeight - this.zoom * frame.getHeight();
+    var deltaY = this.displayHeight - this.zoom * frame.getHeight() * cycleSize;
     this.margin.y = Math.max(0, deltaY) / 2;
   };
 
@@ -230,6 +245,9 @@
     ) {
       this.setGridWidth(this.getUserGridWidth_());
       this.setGridSpacing(this.getUserGridSpacing_());
+    } else if (settingName == "CYCLE_MODE") {
+      this.clear();
+      this.setOffset(this.offset.x, this.offset.y);
     }
   };
 
@@ -346,13 +364,24 @@
     // Scale up to draw the canvas content
     displayContext.scale(z, z);
 
-    if (pskl.UserSettings.get("SEAMLESS_MODE")) {
+    var cycleRadius = this.getCycleRadius_();
+    if (cycleRadius > 0) {
+      var cycleSize = 2 * cycleRadius + 1;
+      displayContext.clearRect(
+        -cycleRadius * w,
+        -cycleRadius * h,
+        cycleSize * w,
+        cycleSize * h
+      );
+    } else if (pskl.UserSettings.get("SEAMLESS_MODE")) {
       displayContext.clearRect(-1 * w, -1 * h, 3 * w, 3 * h);
     } else {
       displayContext.clearRect(0, 0, w, h);
     }
 
-    if (pskl.UserSettings.get("SEAMLESS_MODE")) {
+    if (cycleRadius > 0) {
+      this.drawCycleFrames_(displayContext, this.canvas, w, h, cycleRadius);
+    } else if (pskl.UserSettings.get("SEAMLESS_MODE")) {
       this.drawTiledFrames_(displayContext, this.canvas, w, h, 1);
     }
     displayContext.drawImage(this.canvas, 0, 0);
@@ -418,5 +447,21 @@
       context.drawImage(image, d[0] * w * z, d[1] * h * z);
       context.fillRect(d[0] * w * z, d[1] * h * z, w * z, h * z);
     });
+  };
+
+  ns.FrameRenderer.prototype.drawCycleFrames_ = function (
+    context,
+    image,
+    w,
+    h,
+    k
+  ) {
+    for (var dy = -k; dy <= k; dy++) {
+      for (var dx = -k; dx <= k; dx++) {
+        if (dx !== 0 || dy !== 0) {
+          context.drawImage(image, dx * w, dy * h);
+        }
+      }
+    }
   };
 })();

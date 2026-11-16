@@ -6,6 +6,10 @@
       return Math.max(Math.min(val, max), min);
     },
 
+    mod: function (value, size) {
+      return ((value % size) + size) % size;
+    },
+
     /**
      * Calculate the distance between {x0, y0} and {x1, y1}
      */

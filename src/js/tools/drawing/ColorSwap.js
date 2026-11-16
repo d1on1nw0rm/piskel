@@ -28,8 +28,9 @@
     overlay,
     event
   ) {
-    if (frame.containsPixel(col, row)) {
-      var oldColor = frame.getPixel(col, row);
+    var coords = this.wrapCoords_(frame, col, row);
+    if (frame.containsPixel(coords.col, coords.row)) {
+      var oldColor = frame.getPixel(coords.col, coords.row);
       var newColor = this.getToolColor();
 
       var allLayers = pskl.utils.UserAgent.isMac

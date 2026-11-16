@@ -19,16 +19,25 @@
   /**
    * @override
    */
-  ns.Circle.prototype.draw = function (col, row, color, targetFrame, penSize) {
+  ns.Circle.prototype.draw = function (
+    col,
+    row,
+    color,
+    targetFrame,
+    penSize,
+    wrap
+  ) {
     this.getCirclePixels_(
       this.startCol,
       this.startRow,
       col,
       row,
       penSize
-    ).forEach(function (point) {
-      targetFrame.setPixel(point[0], point[1], color);
-    });
+    ).forEach(
+      function (point) {
+        this.setWrappedPixel_(targetFrame, point[0], point[1], color, wrap);
+      }.bind(this)
+    );
   };
 
   ns.Circle.prototype.getCirclePixels_ = function (x0, y0, x1, y1, penSize) {
@@ -36,8 +45,8 @@
     var pixels = [];
     var xC = Math.round((coords.x0 + coords.x1) / 2);
     var yC = Math.round((coords.y0 + coords.y1) / 2);
-    var evenX = (coords.x0 + coords.x1) % 2;
-    var evenY = (coords.y0 + coords.y1) % 2;
+    var evenX = pskl.utils.Math.mod(coords.x0 + coords.x1, 2);
+    var evenY = pskl.utils.Math.mod(coords.y0 + coords.y1, 2);
     var rX = coords.x1 - xC;
     var rY = coords.y1 - yC;
 

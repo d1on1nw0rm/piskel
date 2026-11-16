@@ -40,14 +40,15 @@
     var points = pskl.PixelUtils.resizePixel(col, row, penSize);
     points.forEach(
       function (point) {
+        var coords = this.wrapCoords_(frame, point[0], point[1]);
         var modifiedColor = this.getModifiedColor_(
-          point[0],
-          point[1],
+          coords.col,
+          coords.row,
           frame,
           overlay,
           event
         );
-        this.draw(modifiedColor, point[0], point[1], frame, overlay);
+        this.draw(modifiedColor, coords.col, coords.row, frame, overlay);
       }.bind(this)
     );
   };

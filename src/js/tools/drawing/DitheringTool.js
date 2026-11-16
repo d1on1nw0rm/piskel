@@ -48,7 +48,8 @@
     overlay,
     event
   ) {
-    var usePrimaryColor = (col + row) % 2;
+    var coords = this.wrapCoords_(frame, col, row);
+    var usePrimaryColor = (coords.col + coords.row) % 2;
 
     if (pskl.app.mouseStateService.isRightButtonPressed()) {
       usePrimaryColor = !usePrimaryColor;
@@ -58,6 +59,6 @@
       ? pskl.app.selectedColorsService.getPrimaryColor()
       : pskl.app.selectedColorsService.getSecondaryColor();
 
-    this.draw(ditheringColor, col, row, frame, overlay);
+    this.draw(ditheringColor, coords.col, coords.row, frame, overlay);
   };
 })();

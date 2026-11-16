@@ -64,6 +64,27 @@ The bottom bar shows:
 Other layers and onion skin are drawn on the canvas too, see
 [layers.md](layers.md) and [preview.md](preview.md).
 
+### Cycle mode
+
+Cycle mode (3x3 or 5x5, see [settings.md](settings.md)) draws the frame in
+the middle of a grid of copies of itself.
+
+- `canvas.cycle-copies` The copies are exact copies of the frame, with no
+  mask and no change of opacity, and they are editable: pixels drawn on any
+  copy are written to the frame, so the edit shows in every copy.
+- `canvas.cycle-wrap` Pixels outside the frame are written at the matching
+  position on the opposite side, so a stroke that leaves one edge comes back
+  in from the other. The frame keeps its own size and has no seams.
+- `canvas.cycle-zoom` Turning cycle mode on, or changing between 3x3 and 5x5,
+  fits the whole grid in the drawing area, with the frame in the center. The
+  minimum zoom is lowered to 0.1 while cycle mode is on, so large frames fit.
+- `canvas.cycle-tile-mode` While cycle mode is on, its copies replace the
+  Tile mode copies and mask. With cycle mode off, Tile mode is unchanged.
+- `canvas.cycle-scope` Out of scope for this version: the paint bucket does
+  not wrap, and a click on a copy does not fill. The selection tools
+  (rectangle select, lasso select) and the move tool
+  keep their current behavior.
+
 ### Performance warning
 
 - `canvas.performance-warning` Large sprites show a warning icon.

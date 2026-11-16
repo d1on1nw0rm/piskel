@@ -24,7 +24,8 @@
     row,
     color,
     targetFrame,
-    penSize
+    penSize,
+    wrap
   ) {
     var rectangle = pskl.PixelUtils.getOrderedRectangleCoordinates(
       this.startCol,
@@ -41,7 +42,7 @@
           y > rectangle.y1 - penSize ||
           y < rectangle.y0 + penSize
         ) {
-          targetFrame.setPixel(x, y, color);
+          this.setWrappedPixel_(targetFrame, x, y, color, wrap);
         }
       }
     }

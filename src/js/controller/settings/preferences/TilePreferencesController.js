@@ -41,6 +41,10 @@
       this.onTileMaskOpacityChange_
     );
     this.updateTileMaskOpacityText_(tileMaskOpacityInput.value);
+
+    var cycleModeSelect = document.querySelector(".cycle-mode-select");
+    cycleModeSelect.value = pskl.UserSettings.get(pskl.UserSettings.CYCLE_MODE);
+    this.addEventListener(cycleModeSelect, "change", this.onCycleModeChange_);
   };
 
   ns.TilePreferencesController.prototype.onTileModeChange_ = function (evt) {
@@ -48,6 +52,11 @@
       pskl.UserSettings.SEAMLESS_MODE,
       evt.currentTarget.checked
     );
+  };
+
+  ns.TilePreferencesController.prototype.onCycleModeChange_ = function (evt) {
+    var cycleMode = parseInt(evt.target.value, 10);
+    pskl.UserSettings.set(pskl.UserSettings.CYCLE_MODE, cycleMode);
   };
 
   ns.TilePreferencesController.prototype.onTileMaskOpacityChange_ = function (

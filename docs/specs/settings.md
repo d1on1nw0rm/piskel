@@ -47,6 +47,10 @@ Three tabs: Misc, Grid and Tile mode.
   edges can be matched. Off by default.
 - `settings.tile-opacity` **Mask opacity** (Tile mode): opacity of the
   mask over the repeated copies, from 0 to 0.5, 0.3 by default.
+- `settings.cycle-mode` **Cycle mode** (Tile mode): Off, 3x3 or 5x5, Off by
+  default. With 3x3 or 5x5 the frame is drawn in the middle of a grid of
+  editable copies (see [canvas.md](canvas.md)). A short note under the
+  control says that the copies are editable and their edges connect.
 - `settings.persist` Changed preferences are kept when the drawer is
   closed and reopened, and across reloads.
 

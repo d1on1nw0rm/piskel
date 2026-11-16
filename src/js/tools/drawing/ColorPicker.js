@@ -24,8 +24,11 @@
     overlay,
     event
   ) {
-    if (frame.containsPixel(col, row)) {
-      var sampledColor = pskl.utils.intToColor(frame.getPixel(col, row));
+    var coords = this.wrapCoords_(frame, col, row);
+    if (frame.containsPixel(coords.col, coords.row)) {
+      var sampledColor = pskl.utils.intToColor(
+        frame.getPixel(coords.col, coords.row)
+      );
       if (pskl.app.mouseStateService.isLeftButtonPressed()) {
         $.publish(Events.SELECT_PRIMARY_COLOR, [sampledColor]);
       } else if (pskl.app.mouseStateService.isRightButtonPressed()) {

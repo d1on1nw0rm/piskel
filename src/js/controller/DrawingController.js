@@ -120,6 +120,9 @@
       function () {
         this.relayout_();
         this.resetZoom_();
+        if (pskl.UserSettings.get("CYCLE_MODE") > 0) {
+          this.setOffset(0, 0);
+        }
       }.bind(this),
       100
     );
@@ -186,12 +189,17 @@
       console.warn("DrawingController:onUserSettingsChange_ not implemented !");
     } else if (
       settingsName == pskl.UserSettings.ONION_SKIN ||
-      settingsName == pskl.UserSettings.LAYER_PREVIEW
+      settingsName == pskl.UserSettings.LAYER_PREVIEW ||
+      settingsName == "CYCLE_MODE"
     ) {
       this.onionSkinRenderer.clear();
       this.onionSkinRenderer.flush();
       this.layersRenderer.clear();
       this.layersRenderer.flush();
+      if (settingsName == "CYCLE_MODE") {
+        this.resetZoom_();
+        this.setOffset(0, 0);
+      }
       this.render();
     }
   };
@@ -455,11 +463,17 @@
    */
   ns.DrawingController.prototype.pickColorAt_ = function (coords) {
     var frame = this.piskelController.getCurrentFrame();
-    if (!frame.containsPixel(coords.x, coords.y)) {
+    var x = coords.x;
+    var y = coords.y;
+    if (pskl.UserSettings.get("CYCLE_MODE") > 0) {
+      x = pskl.utils.Math.mod(x, frame.getWidth());
+      y = pskl.utils.Math.mod(y, frame.getHeight());
+    }
+    if (!frame.containsPixel(x, y)) {
       return;
     }
 
-    var color = pskl.utils.intToColor(frame.getPixel(coords.x, coords.y));
+    var color = pskl.utils.intToColor(frame.getPixel(x, y));
     var isRightButton = pskl.app.mouseStateService.isRightButtonPressed();
     var evt = isRightButton
       ? Events.SELECT_SECONDARY_COLOR
@@ -541,10 +555,12 @@
   ns.DrawingController.prototype.calculateZoom_ = function () {
     var frameHeight = this.piskelController.getCurrentFrame().getHeight();
     var frameWidth = this.piskelController.getCurrentFrame().getWidth();
+    var cycleMode = Number(pskl.UserSettings.get("CYCLE_MODE"));
+    var cycleSize = cycleMode > 0 ? cycleMode : 1;
 
     return Math.min(
-      this.getAvailableWidth_() / frameWidth,
-      this.getAvailableHeight_() / frameHeight
+      this.getAvailableWidth_() / (cycleSize * frameWidth),
+      this.getAvailableHeight_() / (cycleSize * frameHeight)
     );
   };
 

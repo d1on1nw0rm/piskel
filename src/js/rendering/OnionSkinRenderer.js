@@ -71,6 +71,7 @@
     return [
       this.getZoom(),
       this.getGridWidth(),
+      pskl.UserSettings.get("CYCLE_MODE"),
       offset.x,
       offset.y,
       size.width,

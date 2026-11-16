@@ -41,7 +41,8 @@
 
     // The fake canvas where we will draw the preview of the stroke:
     // Drawing the first point of the stroke in the fake overlay canvas:
-    overlay.setPixel(col, row, this.getToolColor());
+    var coords = this.wrapCoords_(frame, col, row);
+    overlay.setPixel(coords.col, coords.row, this.getToolColor());
   };
 
   ns.Stroke.prototype.moveToolAt = function (col, row, frame, overlay, event) {
@@ -60,7 +61,15 @@
       color = Constants.SELECTION_TRANSPARENT_COLOR;
     }
 
-    this.draw_(col, row, color, overlay, penSize, isStraight);
+    this.draw_(
+      col,
+      row,
+      color,
+      overlay,
+      penSize,
+      isStraight,
+      this.isCycleMode_()
+    );
   };
 
   /**
@@ -79,7 +88,8 @@
 
     // The user released the tool to draw a line. We will compute the pixel coordinate, impact
     // the model and draw them in the drawing canvas (not the fake overlay anymore)
-    this.draw_(col, row, color, frame, penSize, isStraight);
+    var wrap = this.isCycleMode_();
+    this.draw_(col, row, color, frame, penSize, isStraight, wrap);
 
     // For now, we are done with the stroke tool and don't need an overlay anymore:
     overlay.clear();
@@ -91,7 +101,8 @@
       startRow: this.startRow,
       color: color,
       penSize: penSize,
-      isStraight: isStraight
+      isStraight: isStraight,
+      wrap: wrap
     });
   };
 
@@ -101,7 +112,8 @@
     color,
     targetFrame,
     penSize,
-    isStraight
+    isStraight,
+    wrap
   ) {
     var linePixels;
     if (isStraight) {
@@ -120,46 +132,46 @@
       );
     }
 
+    var writePixel = function (x, y) {
+      this.setWrappedPixel_(targetFrame, x, y, color, wrap);
+    }.bind(this);
+
     //draw the square ends of the line
     pskl.PixelUtils.resizePixel(
       linePixels[0].col,
       linePixels[0].row,
       penSize
     ).forEach(function (point) {
-      targetFrame.setPixel(point[0], point[1], color);
+      writePixel(point[0], point[1]);
     });
     pskl.PixelUtils.resizePixel(
       linePixels[linePixels.length - 1].col,
       linePixels[linePixels.length - 1].row,
       penSize
     ).forEach(function (point) {
-      targetFrame.setPixel(point[0], point[1], color);
+      writePixel(point[0], point[1]);
     });
 
     //for each step along the line, draw an x centered on that pixel of size penSize
     linePixels.forEach(function (point) {
       for (var i = 0; i < penSize; i++) {
-        targetFrame.setPixel(
+        writePixel(
           point.col - Math.floor(penSize / 2) + i,
-          point.row - Math.floor(penSize / 2) + i,
-          color
+          point.row - Math.floor(penSize / 2) + i
         );
-        targetFrame.setPixel(
+        writePixel(
           point.col - Math.floor(penSize / 2) + i,
-          point.row + Math.ceil(penSize / 2) - i - 1,
-          color
+          point.row + Math.ceil(penSize / 2) - i - 1
         );
         //draw an additional x directly next to the first to prevent unwanted dithering
         if (i !== 0) {
-          targetFrame.setPixel(
+          writePixel(
             point.col - Math.floor(penSize / 2) + i,
-            point.row - Math.floor(penSize / 2) + i - 1,
-            color
+            point.row - Math.floor(penSize / 2) + i - 1
           );
-          targetFrame.setPixel(
+          writePixel(
             point.col - Math.floor(penSize / 2) + i,
-            point.row + Math.ceil(penSize / 2) - i,
-            color
+            point.row + Math.ceil(penSize / 2) - i
           );
         }
       }
@@ -175,7 +187,8 @@
       replayData.color,
       frame,
       replayData.penSize,
-      replayData.isStraight
+      replayData.isStraight,
+      replayData.wrap
     );
   };
 })();
